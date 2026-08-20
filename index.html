@@ -443,8 +443,9 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     return arr[idx];
   }
 
+  const AUDIO_BASE = 'https://cykbt2q2dxbrt73z.public.blob.vercel-storage.com/';
   function encodePath(p){
-    return p.split('/').map(encodeURIComponent).join('/');
+    return AUDIO_BASE + p.split('/').map(encodeURIComponent).join('/');
   }
 
   function renderPlayer(){
