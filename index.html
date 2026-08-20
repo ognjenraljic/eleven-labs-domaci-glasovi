@@ -148,6 +148,7 @@
   .usage-row{display:flex;gap:14px;margin-top:6px;flex-wrap:wrap}
   .usage-row span{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:11px;color:var(--text-dim)}
   .usage-row .icon-sm{color:var(--text-dim)}
+  .usage-row-mobile{display:none}
 
   .section-lbl{font-size:11px;color:var(--text-dim);font-family:var(--mono);text-transform:uppercase;margin-bottom:8px}
   .cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
@@ -268,8 +269,13 @@
     .player-voice{gap:10px}
     .player-voice .avatar{width:44px;height:44px;font-size:15px}
     .player-voice h2{font-size:16px}
-    .usage-row{gap:10px}
     .player-head > div:last-child{position:absolute;top:0;right:0;text-align:right}
+
+    /* usage-row (7d/god/klonirano) na mobilnom postaje pun red ispod
+       imena+ocjene, u jednoj liniji, umjesto stisnuto pored avatara */
+    .usage-row-desktop{display:none}
+    .usage-row-mobile{display:flex;flex-wrap:nowrap;gap:8px;margin-top:2px;margin-bottom:14px}
+    .usage-row-mobile span{font-size:10px;gap:3px}
 
     /* ocjena postaje posebna "kocka" gore desno, broj ocjena ide ispod zvjezdica */
     .score-box{background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:10px}
@@ -596,7 +602,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
           <div>
             <h2>${nameParts.first}</h2>
             <div class="vc-tag">${nameParts.rest}</div>
-            <div class="usage-row">
+            <div class="usage-row usage-row-desktop">
               <span>${ICONS.trending} ${fmtNum(v.usage7d)}/7d</span>
               <span>${ICONS.trending} ${fmtNum(v.usage1y)}/god</span>
               <span>${ICONS.copy} klonirano ${fmtNum(v.cloned)}x</span>
@@ -607,6 +613,11 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
           <div class="score-pill score-box" style="font-size:15px">${stats.avg!==null? ICONS.starSmall+' '+stats.avg.toFixed(2) : 'Bez ocjene'}</div>
           <div class="rating-label rating-count-desktop">${stats.count} ocjena ukupno</div>
         </div>
+      </div>
+      <div class="usage-row usage-row-mobile">
+        <span>${ICONS.trending} ${fmtNum(v.usage7d)}/7d</span>
+        <span>${ICONS.trending} ${fmtNum(v.usage1y)}/god</span>
+        <span>${ICONS.copy} klonirano ${fmtNum(v.cloned)}x</span>
       </div>
 
       <div class="section-lbl">Stil rečenice</div>
