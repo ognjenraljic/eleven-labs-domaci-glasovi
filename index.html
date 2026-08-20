@@ -261,11 +261,15 @@
     .panel{padding:12px}
     .voice-list{max-height:56vh}
 
-    .player-head{gap:10px}
+    /* ocjena ostaje fiksirana u gornjem desnom uglu bez obzira koliko je
+       lijevi sadrzaj (avatar/ime/usage) visok - position:absolute umjesto
+       flex-wrap, koji bi je gurnuo ispod na uskim ekranima. */
+    .player-head{gap:10px;position:relative;padding-right:78px}
     .player-voice{gap:10px}
     .player-voice .avatar{width:44px;height:44px;font-size:15px}
     .player-voice h2{font-size:16px}
     .usage-row{gap:10px}
+    .player-head > div:last-child{position:absolute;top:0;right:0;text-align:right}
 
     /* ocjena postaje posebna "kocka" gore desno, broj ocjena ide ispod zvjezdica */
     .score-box{background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:10px}
@@ -482,6 +486,13 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     return name.split(' ').filter(Boolean).slice(0,1)[0].slice(0,2).toUpperCase();
   }
 
+  // "Adnan - Energetic- Educational" -> {first:"Adnan", rest:"Energetic- Educational"}
+  function splitVoiceName(name){
+    const idx = name.indexOf(' - ');
+    if(idx===-1) return { first: name, rest: '' };
+    return { first: name.slice(0,idx), rest: name.slice(idx+3) };
+  }
+
   // ---------- scoring ----------
   function voiceStats(voice){
     const s = serverStats[voice.id];
@@ -521,11 +532,12 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       const genderClass = v.gender==='Ž' ? 'f' : '';
       const priceBadge = v.price==='3x' ? `<span class="badge price3">3x</span>` : '';
       const score = stats.avg!==null ? `<span class="score-pill">${ICONS.starSmall} ${stats.avg.toFixed(1)}</span>` : '';
+      const nameParts = splitVoiceName(v.name);
       return `<div class="voice-card ${sel}" data-id="${v.id}">
         <div class="avatar ${genderClass}">${initials(v.name)}</div>
         <div class="vc-info">
-          <div class="vc-name">${v.name}</div>
-          <div class="vc-tag">${v.tag}</div>
+          <div class="vc-name">${nameParts.first}</div>
+          <div class="vc-tag">${nameParts.rest}</div>
         </div>
         <div class="vc-meta">
           ${priceBadge}${score}
@@ -555,6 +567,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     const stats = voiceStats(v);
     const genderClass = v.gender==='Ž' ? 'f' : '';
     const cat = CATS.find(c=>c.key===state.cat);
+    const nameParts = splitVoiceName(v.name);
 
     const catTabs = CATS.map(c=>`
       <button class="cat-tab ${c.key===state.cat?'active':''}" data-cat="${c.key}">
@@ -581,8 +594,8 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
         <div class="player-voice">
           <div class="avatar ${genderClass}" style="width:52px;height:52px;font-size:18px">${initials(v.name)}</div>
           <div>
-            <h2>${v.name}</h2>
-            <div class="vc-tag">${v.tag}</div>
+            <h2>${nameParts.first}</h2>
+            <div class="vc-tag">${nameParts.rest}</div>
             <div class="usage-row">
               <span>${ICONS.trending} ${fmtNum(v.usage7d)}/7d</span>
               <span>${ICONS.trending} ${fmtNum(v.usage1y)}/god</span>
@@ -868,14 +881,15 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     body.innerHTML = rows.map((row,i)=>{
       const rankClass = i===0?'top1':i===1?'top2':i===2?'top3':'';
       const s = row.stats;
+      const nameParts = splitVoiceName(row.v.name);
       return `<tr data-id="${row.v.id}">
         <td class="rank lb-col-narrow ${rankClass}">${i+1}</td>
         <td>
           <div class="lb-name">
             <div class="avatar ${row.v.gender==='Ž'?'f':''}" style="width:28px;height:28px;font-size:11px;flex:none">${initials(row.v.name)}</div>
             <div class="lb-name-info">
-              <div class="lb-name-line" style="font-weight:600">${row.v.name} ${row.v.price==='3x'?'<span class="badge price3">3x</span>':''}</div>
-              <div class="lb-name-line" style="font-size:11px;color:var(--text-dim)">${row.v.tag}</div>
+              <div class="lb-name-line" style="font-weight:600">${nameParts.first} ${row.v.price==='3x'?'<span class="badge price3">3x</span>':''}</div>
+              <div class="lb-name-line" style="font-size:11px;color:var(--text-dim)">${nameParts.rest}</div>
             </div>
           </div>
         </td>
