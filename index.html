@@ -54,11 +54,12 @@
   #app{position:relative;z-index:1;max-width:1440px;margin:0 auto;padding:28px 32px 80px}
 
   header{display:flex;align-items:center;justify-content:space-between;gap:24px;margin-bottom:22px;flex-wrap:wrap}
-  .brand{display:flex;align-items:flex-start;gap:16px}
-  .brand img{height:52px;filter:drop-shadow(0 0 14px var(--accent-glow))}
-  .brand-title{font-size:30px;font-weight:800;letter-spacing:.3px;line-height:1;color:var(--text)}
-  .brand h1{font-size:15px;font-weight:600;letter-spacing:.2px;color:var(--text-soft);margin-top:6px}
-  .brand .sub{font-size:12px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase;margin-top:2px}
+  .brand{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+  .brand-row1{display:flex;align-items:center;gap:10px}
+  .brand img{height:34px;filter:drop-shadow(0 0 14px var(--accent-glow))}
+  .brand-title{font-size:22px;font-weight:800;letter-spacing:.3px;line-height:1;color:var(--text)}
+  .brand h1{font-size:15px;font-weight:600;letter-spacing:.2px;color:var(--text-soft)}
+  .brand .sub{font-size:12px;color:var(--text-dim);font-family:var(--mono);letter-spacing:.5px;text-transform:uppercase}
   .stats-row{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
   .stats-row span{display:inline-flex;align-items:center;gap:5px}
   .stats-row .icon-sm{color:var(--accent);opacity:.85}
@@ -192,7 +193,6 @@
   .star:hover{transform:scale(1.15)}
   .rating-label{font-size:11px;color:var(--text-dim);font-family:var(--mono)}
 
-  .autoplay-row{display:flex;gap:8px;margin-top:10px}
   .ghost-btn{
     background:transparent;border:1px solid var(--border);color:var(--text-soft);
     font-size:11px;font-family:var(--mono);padding:7px 12px;border-radius:8px;cursor:pointer;transition:all .18s;
@@ -247,16 +247,16 @@
 <div id="app">
   <header>
     <div class="brand">
-      <img src="logo.png" alt="AI Zdravo">
-      <div>
-        <div class="brand-title">AI ZDRAVO</div>
-        <h1>ElevenLabs Poređenje Glasova</h1>
-        <div class="sub stats-row">
-          <span><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12.9a5 5 0 1 0 -3.902 -3.9"/><path d="M15 12.9l-3.902 -3.899l-7.513 8.584a2 2 0 1 0 2.827 2.83l8.588 -7.515"/></svg>41 glas</span>
-          <span><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5"/><path d="M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5"/></svg>5 rečenica</span>
-          <span><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 7a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2l0 -10"/><path d="M7 7l0 10"/><path d="M4 8l0 8"/></svg>3 verzije</span>
-          <span><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1l0 -12"/><path d="M9 9h6v6h-6l0 -6"/><path d="M3 10h2"/><path d="M3 14h2"/><path d="M10 3v2"/><path d="M14 3v2"/><path d="M21 10h-2"/><path d="M21 14h-2"/><path d="M14 21v-2"/><path d="M10 21v-2"/></svg>2 modela</span>
-        </div>
+      <div class="brand-row1">
+        <img src="logo.png" alt="AI Zdravo">
+        <span class="brand-title">AI ZDRAVO</span>
+      </div>
+      <h1>ElevenLabs Poređenje Glasova</h1>
+      <div class="sub stats-row">
+        <span><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12.9a5 5 0 1 0 -3.902 -3.9"/><path d="M15 12.9l-3.902 -3.899l-7.513 8.584a2 2 0 1 0 2.827 2.83l8.588 -7.515"/></svg>41 glas</span>
+        <span><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5"/><path d="M19 11h-4a1 1 0 0 1 -1 -1v-3a1 1 0 0 1 1 -1h3a1 1 0 0 1 1 1v6c0 2.667 -1.333 4.333 -4 5"/></svg>5 rečenica</span>
+        <span><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 7a2 2 0 0 1 2 -2h6a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-6a2 2 0 0 1 -2 -2l0 -10"/><path d="M7 7l0 10"/><path d="M4 8l0 8"/></svg>3 verzije</span>
+        <span><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6a1 1 0 0 1 1 -1h12a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-12a1 1 0 0 1 -1 -1l0 -12"/><path d="M9 9h6v6h-6l0 -6"/><path d="M3 10h2"/><path d="M3 14h2"/><path d="M10 3v2"/><path d="M14 3v2"/><path d="M21 10h-2"/><path d="M21 14h-2"/><path d="M14 21v-2"/><path d="M10 21v-2"/></svg>2 modela</span>
       </div>
     </div>
     <div class="model-toggle" id="modelToggle">
@@ -347,7 +347,6 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     sort: 'name',
     query: '',
     view: 'voices',
-    autoplay: false,
   };
 
   const RKEY = 'aiz_vlab_ratings_v1';
@@ -501,9 +500,6 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       <div class="version-row">
         <span class="lbl">Verzija</span>
         <div id="verPills" style="display:flex;gap:8px">${verPills}</div>
-        <label class="ghost-btn" style="margin-left:auto;cursor:pointer">
-          <input type="checkbox" id="autoplayChk" style="margin-right:6px;vertical-align:middle">Auto-play sve rečenice
-        </label>
       </div>
 
       <div class="sentence-box">${cat.text}</div>
@@ -528,8 +524,6 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       el.addEventListener('click', ()=>{ state.ver = el.dataset.ver; loadAndMaybePlay(); renderPlayer(); });
     });
     document.getElementById('playBtn').addEventListener('click', togglePlay);
-    document.getElementById('autoplayChk').checked = state.autoplay;
-    document.getElementById('autoplayChk').addEventListener('change', (e)=>{ state.autoplay = e.target.checked; });
 
     document.querySelectorAll('.rating-row .star').forEach(el=>{
       el.addEventListener('click', ()=>{
@@ -640,7 +634,6 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     startWaveLoop(); // ostaje da radi dok se stubovi ne smire na sredisnjoj liniji
   });
   audioEl.addEventListener('timeupdate', updateTimeLabel);
-  audioEl.addEventListener('ended', onEnded);
 
   function fmtTime(t){
     if(!isFinite(t)) return '0:00';
@@ -653,19 +646,6 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     lbl.textContent = fmtTime(audioEl.currentTime)+' / '+fmtTime(audioEl.duration||0);
   }
 
-  function onEnded(){
-    if(state.autoplay){
-      const idx = CATS.findIndex(c=>c.key===state.cat);
-      if(idx < CATS.length-1){
-        state.cat = CATS[idx+1].key;
-        renderPlayer();
-        loadClip(true);
-        return;
-      } else {
-        state.autoplay = false;
-      }
-    }
-  }
 
   // Stabilan per-stub "karakter" (0..1) - da ne skacu svi identicno kao jedan
   // blok, nego da svaki stub ima svoju blago drugaciju osjetljivost, kao kod
