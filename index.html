@@ -151,17 +151,16 @@
   .usage-row-mobile{display:none}
 
   .section-lbl{font-size:11px;color:var(--text-dim);font-family:var(--mono);text-transform:uppercase;margin-bottom:8px}
-  .cat-tabs{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+  .cat-tabs{display:flex;gap:6px;margin-bottom:14px}
   .cat-tab{
-    background:var(--bg2);border:1px solid var(--border);color:var(--text-soft);
-    font-size:12px;font-weight:600;padding:8px 13px;border-radius:9px;cursor:pointer;transition:all .18s;
-    display:flex;flex-direction:column;align-items:flex-start;gap:2px;
+    flex:1;background:var(--bg2);border:1px solid var(--border);color:var(--text-soft);
+    font-size:12px;font-weight:600;padding:10px 6px;border-radius:9px;cursor:pointer;transition:all .18s;
+    display:flex;flex-direction:column;align-items:center;gap:4px;white-space:nowrap;
   }
-  .cat-tab small{font-family:var(--mono);font-weight:400;color:var(--text-dim);font-size:10px}
   .cat-tab.active{border-color:var(--accent);background:var(--accent-soft);color:var(--text)}
-  .cat-label-short{display:none}
 
-  .version-row{display:flex;align-items:center;gap:10px;margin-bottom:16px}
+  .version-row{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:16px}
+  #verPills{justify-content:center}
   .version-row .lbl{font-size:11px;color:var(--text-dim);font-family:var(--mono);text-transform:uppercase}
   .ver-pill{
     width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:var(--bg2);
@@ -283,13 +282,8 @@
     .rating-count-mobile{display:block;width:100%;text-align:center;margin-top:8px}
 
     .section-lbl{text-align:center}
-    .cat-tabs{gap:4px;flex-wrap:nowrap}
-    .cat-tab{flex:1;padding:8px 2px;font-size:9px;align-items:center;gap:3px}
-    .cat-label-full{display:none}
-    .cat-label-short{display:block;white-space:nowrap}
-
-    .version-row{flex-direction:column;align-items:center;gap:6px}
-    #verPills{justify-content:center}
+    .cat-tabs{gap:4px}
+    .cat-tab{padding:8px 2px;font-size:9px}
 
     .transport{padding:12px;gap:10px}
     .play-btn{width:44px;height:44px}
@@ -581,8 +575,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     const catTabs = CATS.map(c=>`
       <button class="cat-tab ${c.key===state.cat?'active':''}" data-cat="${c.key}">
         ${CAT_ICONS[c.key]||''}
-        <span class="cat-label-full">${c.label}<small>${c.sub}</small></span>
-        <span class="cat-label-short">${CAT_SHORT_LABEL[c.key]||c.label}</span>
+        <span>${CAT_SHORT_LABEL[c.key]||c.label}</span>
       </button>`).join('');
 
     const verPills = VERS.map(ver=>`
@@ -614,7 +607,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
         </div>
         <div style="text-align:right">
           <div class="score-pill score-box" style="font-size:15px">${stats.avg!==null? ICONS.starSmall+' '+stats.avg.toFixed(2) : 'Bez ocjene'}</div>
-          <div class="rating-label rating-count-desktop">${modelCount} ocjena ukupno</div>
+          <div class="rating-label rating-count-desktop">Broj ocjena: ${modelCount}</div>
         </div>
       </div>
       <div class="usage-row usage-row-mobile">
