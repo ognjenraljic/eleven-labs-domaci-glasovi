@@ -193,6 +193,7 @@
   .star.filled{color:var(--accent);filter:drop-shadow(0 0 6px var(--accent-glow))}
   .star:hover{transform:scale(1.15)}
   .rating-label{font-size:11px;color:var(--text-dim);font-family:var(--mono)}
+  .rating-count-mobile{display:none}
 
   .ghost-btn{
     background:transparent;border:1px solid var(--border);color:var(--text-soft);
@@ -262,6 +263,11 @@
     .player-voice .avatar{width:44px;height:44px;font-size:15px}
     .player-voice h2{font-size:16px}
     .usage-row{gap:10px}
+
+    /* ocjena postaje posebna "kocka" gore desno, broj ocjena ide ispod zvjezdica */
+    .score-box{background:var(--card);border:1px solid var(--border);padding:8px 12px;border-radius:10px}
+    .rating-count-desktop{display:none}
+    .rating-count-mobile{display:block;width:100%;text-align:center;margin-top:8px}
 
     .cat-tabs{gap:5px}
     .cat-tab{padding:7px 9px;font-size:11px}
@@ -566,8 +572,8 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
           </div>
         </div>
         <div style="text-align:right">
-          <div class="score-pill" style="font-size:15px">${stats.avg!==null? ICONS.starSmall+' '+stats.avg.toFixed(2) : 'Bez ocjene'}</div>
-          <div class="rating-label">${stats.count} ocjena ukupno</div>
+          <div class="score-pill score-box" style="font-size:15px">${stats.avg!==null? ICONS.starSmall+' '+stats.avg.toFixed(2) : 'Bez ocjene'}</div>
+          <div class="rating-label rating-count-desktop">${stats.count} ocjena ukupno</div>
         </div>
       </div>
 
@@ -588,6 +594,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       <div class="rating-row">
         <span class="rating-label">Kako ti se čini ovaj glas na modelu ${state.model==='multi'?'Multilingual v2':'Flash v2.5'}?</span>
         ${starsHTML(state.model, true)}
+        <div class="rating-label rating-count-mobile">${stats.count} ocjena ukupno</div>
       </div>
     `;
 
