@@ -548,6 +548,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
   const audioEl = document.getElementById('player');
   const vizEl = document.getElementById('playerViz');
   vizEl.muted = true;
+  audioEl.crossOrigin = 'anonymous';
   vizEl.crossOrigin = 'anonymous';
   let rafId = null;
   let audioCtx = null, analyser = null, freqData = null, vizReady = false;
