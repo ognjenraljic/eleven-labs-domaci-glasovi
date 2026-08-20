@@ -666,6 +666,14 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     ctx.stroke();
   }
 
+  // Stabilan per-stub "karakter" (0..1) - da ne skacu svi identicno kao jedan
+  // blok, nego da svaki stub ima svoju blago drugaciju osjetljivost, kao kod
+  // pravog ekvilajzera sa vise frekvencijskih traka.
+  const BAR_CHAR = Array.from({length:40}, (_,i)=>{
+    const x = Math.sin(i*12.9898 + 4.1) * 43758.5453;
+    return 0.55 + 0.45*(x - Math.floor(x));
+  });
+
   function drawWave(){
     const canvas = document.getElementById('wave');
     if(!canvas) return;
@@ -676,19 +684,25 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       if(audioEl.paused){ return; }
       ctx.clearRect(0,0,w,h);
       const bars = 40;
-      // Klizi kroz stvarno dekodovane amplitude tog klipa (vidi getWaveform), centrirano
-      // na trenutnu poziciju sviranja - pravi audio-reaktivni prikaz, ne live analyser.
+      // Stubovi skacu gore-dole u ritmu TRENUTNE jacine zvuka (iz stvarno
+      // dekodovanih amplituda tog klipa, vidi getWaveform) - ne prikazuje se
+      // oblik cijelog talasa, nego live nivo "sada", isto kao kod ekvilajzera.
       const dur = audioEl.duration || 0;
       const progress = dur > 0 ? Math.min(1, audioEl.currentTime/dur) : 0;
-      for(let i=0;i<bars;i++){
-        let v;
-        if(currentWaveform && currentWaveform.length){
-          const center = progress * currentWaveform.length;
-          const idx = Math.min(currentWaveform.length-1, Math.max(0, Math.round(center - bars/2 + i)));
-          v = currentWaveform[idx];
-        } else {
-          v = (Math.sin(Date.now()/120 + i)+1)/2 * 0.7 + 0.1;
+      let level = 0.35;
+      if(currentWaveform && currentWaveform.length){
+        const idx = Math.min(currentWaveform.length-1, Math.max(0, Math.round(progress*currentWaveform.length)));
+        const span = 2;
+        let sum = 0, cnt = 0;
+        for(let k=-span;k<=span;k++){
+          const j = idx+k;
+          if(j>=0 && j<currentWaveform.length){ sum += currentWaveform[j]; cnt++; }
         }
+        level = cnt ? sum/cnt : currentWaveform[idx];
+      }
+      for(let i=0;i<bars;i++){
+        const jitter = (Math.sin(Date.now()/90 + i*1.7) + 1)/2;
+        const v = level * BAR_CHAR[i] * (0.7 + 0.3*jitter);
         const bh = Math.max(3, v*h);
         const x = i*(w/bars);
         const grad = ctx.createLinearGradient(0,h-bh,0,h);
