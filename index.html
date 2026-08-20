@@ -355,7 +355,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
   function saveRatings(r){ localStorage.setItem(RKEY, JSON.stringify(r)); }
   let ratings = loadRatings();
 
-  function ratingKey(model, voiceId, cat, ver){ return model+'|'+voiceId+'|'+cat+'|'+ver; }
+  function ratingKey(model, voiceId){ return model+'|'+voiceId; }
 
   function voiceById(id){ return VOICES.find(v=>v.id===id); }
 
@@ -385,18 +385,10 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
   // ---------- scoring ----------
   function voiceStats(voice){
     let sum=0,count=0, sumMulti=0,countMulti=0, sumFlash=0,countFlash=0;
-    for(const cat of CATS){
-      for(const ver of VERS){
-        for(const model of ['multi','flash']){
-          const k = ratingKey(model, voice.id, cat.key, ver);
-          const r = ratings[k];
-          if(r){
-            sum+=r; count++;
-            if(model==='multi'){sumMulti+=r;countMulti++;} else {sumFlash+=r;countFlash++;}
-          }
-        }
-      }
-    }
+    const rMulti = ratings[ratingKey('multi', voice.id)];
+    const rFlash = ratings[ratingKey('flash', voice.id)];
+    if(rMulti){ sum+=rMulti; count++; sumMulti+=rMulti; countMulti++; }
+    if(rFlash){ sum+=rFlash; count++; sumFlash+=rFlash; countFlash++; }
     return {
       avg: count? sum/count : null,
       count,
@@ -476,7 +468,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       <button class="ver-pill ${ver===state.ver?'active':''}" data-ver="${ver}">${ver.slice(1)}</button>`).join('');
 
     function starsHTML(model, interactive){
-      const k = ratingKey(model, v.id, state.cat, state.ver);
+      const k = ratingKey(model, v.id);
       const r = ratings[k] || 0;
       let s='';
       for(let i=1;i<=5;i++){
@@ -523,7 +515,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       </div>
 
       <div class="rating-row">
-        <span class="rating-label">Ocjena za ${state.model==='multi'?'Multilingual v2':'Flash v2.5'} · ${cat.label} · v${state.ver.slice(1)}</span>
+        <span class="rating-label">Kako ti se čini ovaj glas na modelu ${state.model==='multi'?'Multilingual v2':'Flash v2.5'}?</span>
         ${starsHTML(state.model, true)}
       </div>
     `;
@@ -541,7 +533,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
 
     document.querySelectorAll('.rating-row .star').forEach(el=>{
       el.addEventListener('click', ()=>{
-        const k = ratingKey(el.dataset.model, v.id, state.cat, state.ver);
+        const k = ratingKey(el.dataset.model, v.id);
         const val = parseInt(el.dataset.val,10);
         ratings[k] = (ratings[k]===val) ? 0 : val; // click same star again to clear
         saveRatings(ratings);
