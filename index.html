@@ -537,6 +537,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       });
     });
     loadClip(false);
+    startWaveLoop(true);
   }
 
   // ---------- audio + waveform ----------
@@ -695,8 +696,12 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     return 0.35; // fallback dok se waveform jos preuzima/dekodira
   }
 
-  function startWaveLoop(){
-    if(waveLoopRunning) return;
+  function startWaveLoop(force){
+    // force=true kad renderPlayer() zamijeni DOM (nov, prazan <canvas>) - stari
+    // rAF ciklus i dalje drzi referencu na STARI (uklonjeni) canvas, pa treba
+    // otkazati i ponovo uhvatiti trenutni element, inace novi canvas ostaje prazan.
+    if(waveLoopRunning && !force) return;
+    if(rafId){ cancelAnimationFrame(rafId); rafId = null; }
     waveLoopRunning = true;
     const canvas = document.getElementById('wave');
     if(!canvas){ waveLoopRunning = false; return; }
