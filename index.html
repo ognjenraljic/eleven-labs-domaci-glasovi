@@ -244,10 +244,13 @@
     .stats-row{gap:10px;row-gap:5px}
     header{gap:14px;margin-bottom:18px}
 
-    .model-toggle{width:100%}
+    .model-toggle{width:100%;margin-bottom:16px}
     .model-toggle button{flex:1;padding:9px 8px;font-size:12px;justify-content:center}
     .view-tabs{width:100%}
     .view-tabs button{flex:1;justify-content:center;padding:9px 8px}
+
+    /* plejer prvo, lista glasova ispod - toggle modela ide iznad plejera preko JS relokacije */
+    #playerPanel{order:-1}
 
     .panel{padding:12px}
     .voice-list{max-height:56vh}
@@ -315,8 +318,10 @@
     <button data-view="leaderboard" id="tabLeaderboard"><svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21l8 0"/><path d="M12 17l0 4"/><path d="M7 4l10 0"/><path d="M17 4v8a5 5 0 0 1 -10 0v-8"/><path d="M3 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/></svg>Rang lista</button>
   </div>
 
+  <div id="modelToggleMobileSlot"></div>
+
   <section id="view-voices">
-    <div class="panel">
+    <div class="panel" id="voiceListPanel">
       <div class="search-wrap">
         <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0"/><path d="M21 21l-6 -6"/></svg>
         <input class="search" id="search" placeholder="Traži glas...">
@@ -885,6 +890,24 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
   renderAll();
   startWaveLoop();
   window.addEventListener('resize', renderModelToggle);
+
+  // Na mobilnom: model-toggle se fizicki premjesta iznad plejera (izmedju
+  // tabova i #view-voices) umjesto da ostane u zaglavlju - drugi kontekst
+  // na razlicitim breakpointima, pa cist CSS "order" nije dovoljan jer
+  // toggle i plejer nisu u istom kontejneru.
+  (function(){
+    const toggle = document.getElementById('modelToggle');
+    const desktopSlot = document.querySelector('header');
+    const mobileSlot = document.getElementById('modelToggleMobileSlot');
+    const mq = window.matchMedia('(max-width:640px)');
+    function place(){
+      if(mq.matches){ mobileSlot.appendChild(toggle); }
+      else{ desktopSlot.appendChild(toggle); }
+      renderModelToggle();
+    }
+    place();
+    mq.addEventListener('change', place);
+  })();
 })();
 </script>
 </body>
