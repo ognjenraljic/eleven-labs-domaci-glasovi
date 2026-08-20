@@ -279,6 +279,9 @@
     table{font-size:12px}
     th,td{padding:8px 6px;white-space:nowrap}
     .lb-stars .icon{width:12px;height:12px}
+    th .lb-th-text{display:none}
+    th{display:table-cell;text-align:left}
+    .lb-col-narrow{display:none}
   }
 </style>
 </head>
@@ -341,18 +344,17 @@
     <div class="panel">
       <div class="leaderboard-header">
         <h2><svg class="icon-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 21l8 0"/><path d="M12 17l0 4"/><path d="M7 4l10 0"/><path d="M17 4v8a5 5 0 0 1 -10 0v-8"/><path d="M3 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/><path d="M17 9a2 2 0 1 0 4 0a2 2 0 1 0 -4 0"/></svg>Rang lista glasova</h2>
-        <button class="ghost-btn" id="resetRatings">Resetuj sve ocjene</button>
       </div>
       <div style="overflow-x:auto">
         <table id="lbTable">
           <thead>
             <tr>
-              <th data-k="rank">#</th>
-              <th data-k="name">Glas</th>
-              <th data-k="score">Ukupna ocjena</th>
-              <th data-k="multi">Multilingual v2</th>
-              <th data-k="flash">Flash v2.5</th>
-              <th data-k="count">Broj ocjena</th>
+              <th data-k="rank" class="lb-col-narrow">#</th>
+              <th data-k="name" title="Glas"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12.9a5 5 0 1 0 -3.902 -3.9"/><path d="M15 12.9l-3.902 -3.899l-7.513 8.584a2 2 0 1 0 2.827 2.83l8.588 -7.515"/></svg><span class="lb-th-text">Glas</span></th>
+              <th data-k="score" title="Ukupna ocjena (prosjek oba modela)"><svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor"><path d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z"/></svg><span class="lb-th-text">Ukupna ocjena</span></th>
+              <th data-k="multi" title="Ocjena na modelu Multilingual v2"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6.371c0 4.418 -2.239 6.629 -5 6.629"/><path d="M4 6.371h7"/><path d="M5 9c0 2.144 2.252 3.908 6 4"/><path d="M12 20l4 -9l4 9"/><path d="M19.1 18h-6.2"/><path d="M6.694 3l.793 .582"/></svg><span class="lb-th-text">Multilingual v2</span></th>
+              <th data-k="flash" title="Ocjena na modelu Flash v2.5"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"/></svg><span class="lb-th-text">Flash v2.5</span></th>
+              <th data-k="count" class="lb-col-narrow">Broj ocjena</th>
             </tr>
           </thead>
           <tbody id="lbBody"></tbody>
@@ -812,7 +814,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       const rankClass = i===0?'top1':i===1?'top2':i===2?'top3':'';
       const s = row.stats;
       return `<tr data-id="${row.v.id}">
-        <td class="rank ${rankClass}">${i+1}</td>
+        <td class="rank lb-col-narrow ${rankClass}">${i+1}</td>
         <td>
           <div class="lb-name">
             <div class="avatar ${row.v.gender==='Ž'?'f':''}" style="width:28px;height:28px;font-size:11px">${initials(row.v.name)}</div>
@@ -830,7 +832,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
         </td>
         <td style="font-family:var(--mono);color:var(--text-soft)">${s.avgMulti!==null?s.avgMulti.toFixed(2):'—'}</td>
         <td style="font-family:var(--mono);color:var(--text-soft)">${s.avgFlash!==null?s.avgFlash.toFixed(2):'—'}</td>
-        <td style="font-family:var(--mono);color:var(--text-dim)">${s.count}</td>
+        <td class="lb-col-narrow" style="font-family:var(--mono);color:var(--text-dim)">${s.count}</td>
       </tr>`;
     }).join('');
     body.querySelectorAll('tr').forEach(tr=>{
@@ -850,14 +852,6 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       renderLeaderboard();
     });
   });
-  document.getElementById('resetRatings').addEventListener('click', ()=>{
-    if(confirm('Sigurno obrisati SVE ocjene? Ovo se ne može poništiti.')){
-      ratings = {};
-      saveRatings(ratings);
-      renderAll();
-    }
-  });
-
   // ---------- view switch ----------
   function switchView(view){
     state.view = view;
