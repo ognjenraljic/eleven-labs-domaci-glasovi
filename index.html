@@ -404,10 +404,32 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     view: 'voices',
   };
 
+  // "ratings" (localStorage) pamti SAMO sta je OVAJ posjetilac lično kliknuo -
+  // za prikaz koja zvjezdica mu je popunjena. Stvarne ocjene (i rang lista)
+  // dolaze sa servera (/api/rate, /api/leaderboard) preko Upstash Redis -
+  // svaka ocjena od svakog posjetioca se trajno cuva, dijeljeno za sve.
   const RKEY = 'aiz_vlab_ratings_v1';
   function loadRatings(){ try{ return JSON.parse(localStorage.getItem(RKEY) || '{}'); }catch(e){ return {}; } }
   function saveRatings(r){ localStorage.setItem(RKEY, JSON.stringify(r)); }
   let ratings = loadRatings();
+
+  let serverStats = {}; // { voiceId: { avg, count, avgMulti, countMulti, avgFlash, countFlash } }
+  async function fetchLeaderboard(){
+    try{
+      const res = await fetch('/api/leaderboard');
+      if(res.ok) serverStats = await res.json();
+    }catch(e){ console.warn('Rang lista nije mogla da se ucita', e); }
+  }
+  async function submitRating(voiceId, model, score){
+    try{
+      await fetch('/api/rate', {
+        method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({voiceId, model, score}),
+      });
+    }catch(e){ console.warn('Ocjena nije poslata', e); }
+    await fetchLeaderboard();
+  }
 
   function ratingKey(model, voiceId){ return model+'|'+voiceId; }
 
@@ -438,16 +460,13 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
 
   // ---------- scoring ----------
   function voiceStats(voice){
-    let sum=0,count=0, sumMulti=0,countMulti=0, sumFlash=0,countFlash=0;
-    const rMulti = ratings[ratingKey('multi', voice.id)];
-    const rFlash = ratings[ratingKey('flash', voice.id)];
-    if(rMulti){ sum+=rMulti; count++; sumMulti+=rMulti; countMulti++; }
-    if(rFlash){ sum+=rFlash; count++; sumFlash+=rFlash; countFlash++; }
+    const s = serverStats[voice.id];
+    if(!s) return { avg: null, count: 0, avgMulti: null, avgFlash: null };
     return {
-      avg: count? sum/count : null,
-      count,
-      avgMulti: countMulti? sumMulti/countMulti : null,
-      avgFlash: countFlash? sumFlash/countFlash : null,
+      avg: s.avg,
+      count: s.count,
+      avgMulti: s.avgMulti,
+      avgFlash: s.avgFlash,
     };
   }
 
@@ -581,11 +600,15 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     document.getElementById('playBtn').addEventListener('click', togglePlay);
 
     document.querySelectorAll('.rating-row .star').forEach(el=>{
-      el.addEventListener('click', ()=>{
-        const k = ratingKey(el.dataset.model, v.id);
+      el.addEventListener('click', async ()=>{
+        const model = el.dataset.model;
         const val = parseInt(el.dataset.val,10);
-        ratings[k] = (ratings[k]===val) ? 0 : val; // click same star again to clear
+        const k = ratingKey(model, v.id);
+        ratings[k] = val; // lokalni indikator "moju ocjenu sam kliknuo"
         saveRatings(ratings);
+        renderPlayer();
+        renderVoiceList();
+        await submitRating(v.id, model, val); // upisuje na server, pa osvjezava serverStats
         renderPlayer();
         renderVoiceList();
       });
@@ -886,6 +909,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
   }
 
   renderAll();
+  fetchLeaderboard().then(renderAll); // prikazi odmah, pa osvjezi kad stignu prave ocjene sa servera
   startWaveLoop();
   window.addEventListener('resize', renderModelToggle);
 
