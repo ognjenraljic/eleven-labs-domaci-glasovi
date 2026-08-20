@@ -214,6 +214,7 @@
   .rank.top3{color:#cd7f32}
   .lb-name{display:flex;align-items:center;gap:10px;min-width:0}
   .lb-name-info{min-width:0}
+  .lb-model-badge{font-family:var(--mono);font-size:9px;font-weight:700;padding:2px 6px;border-radius:5px;border:1px solid var(--border-hi);color:var(--text-soft);white-space:nowrap}
   .lb-score{font-family:var(--mono);color:var(--text);font-weight:700}
   .lb-stars{display:flex;gap:2px}
   .lb-stars .icon{width:15px;height:15px}
@@ -282,7 +283,7 @@
     .lb-stars .icon{width:12px;height:12px}
     th .lb-th-text{display:none}
     th{display:table-cell;text-align:left}
-    .lb-name-info{max-width:100px}
+    .lb-name-info{max-width:145px}
     .lb-name-line{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     td .lb-stars{display:none}
     .lb-col-narrow{display:none}
@@ -354,10 +355,10 @@
           <thead>
             <tr>
               <th data-k="rank" class="lb-col-narrow">#</th>
-              <th data-k="name" title="Glas"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 12.9a5 5 0 1 0 -3.902 -3.9"/><path d="M15 12.9l-3.902 -3.899l-7.513 8.584a2 2 0 1 0 2.827 2.83l8.588 -7.515"/></svg><span class="lb-th-text">Glas</span></th>
+              <th data-k="name">Glas</th>
               <th data-k="score" title="Ukupna ocjena (prosjek oba modela)"><svg class="icon-sm" viewBox="0 0 24 24" fill="currentColor"><path d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z"/></svg><span class="lb-th-text">Ukupna ocjena</span></th>
-              <th data-k="multi" title="Ocjena na modelu Multilingual v2"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6.371c0 4.418 -2.239 6.629 -5 6.629"/><path d="M4 6.371h7"/><path d="M5 9c0 2.144 2.252 3.908 6 4"/><path d="M12 20l4 -9l4 9"/><path d="M19.1 18h-6.2"/><path d="M6.694 3l.793 .582"/></svg><span class="lb-th-text">Multilingual v2</span></th>
-              <th data-k="flash" title="Ocjena na modelu Flash v2.5"><svg class="icon-sm" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 3l0 7l6 0l-8 11l0 -7l-6 0l8 -11"/></svg><span class="lb-th-text">Flash v2.5</span></th>
+              <th data-k="multi" title="Ocjena na modelu Multilingual v2"><span class="lb-model-badge">V2</span><span class="lb-th-text"> Multilingual v2</span></th>
+              <th data-k="flash" title="Ocjena na modelu Flash v2.5"><span class="lb-model-badge">V2.5</span><span class="lb-th-text"> Flash v2.5</span></th>
               <th data-k="count" class="lb-col-narrow">Broj ocjena</th>
             </tr>
           </thead>
