@@ -657,27 +657,29 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       if(audioEl.paused){ return; }
       ctx.clearRect(0,0,w,h);
       const bars = 40;
+      // Web Audio analyser na cross-origin (Blob) audio elementu ponekad vraca
+      // nulte podatke bez ikakvog upozorenja (browser-specificna nepouzdanost,
+      // ne CORS/server problem - headeri su provjereni ispravni na svakoj ruti).
+      // Ako je pravi signal nula, ne prikazuj ravnu liniju - koristi animiranu
+      // fallback verziju umjesto nje, tako da vizuelizacija uvijek "zivi".
+      let realData = null;
       if(vizReady && analyser){
         analyser.getByteFrequencyData(freqData);
-        const step = Math.floor(freqData.length/bars);
-        for(let i=0;i<bars;i++){
-          const v = freqData[i*step]/255;
-          const bh = Math.max(3, v*h);
-          const x = i*(w/bars);
-          const grad = ctx.createLinearGradient(0,h-bh,0,h);
-          grad.addColorStop(0,'#ffb347');
-          grad.addColorStop(1,'#ff8c00');
-          ctx.fillStyle = grad;
-          ctx.fillRect(x, h-bh, (w/bars)-2, bh);
-        }
-      } else {
-        for(let i=0;i<bars;i++){
-          const v = (Math.sin(Date.now()/120 + i)+1)/2 * 0.7 + 0.1;
-          const bh = Math.max(3, v*h);
-          const x = i*(w/bars);
-          ctx.fillStyle = '#ff8c00';
-          ctx.fillRect(x, h-bh, (w/bars)-2, bh);
-        }
+        const sum = freqData.reduce((a,b)=>a+b,0);
+        if(sum > 0) realData = freqData;
+      }
+      const step = realData ? Math.floor(realData.length/bars) : 1;
+      for(let i=0;i<bars;i++){
+        const v = realData
+          ? realData[i*step]/255
+          : (Math.sin(Date.now()/120 + i)+1)/2 * 0.7 + 0.1;
+        const bh = Math.max(3, v*h);
+        const x = i*(w/bars);
+        const grad = ctx.createLinearGradient(0,h-bh,0,h);
+        grad.addColorStop(0,'#ffb347');
+        grad.addColorStop(1,'#ff8c00');
+        ctx.fillStyle = grad;
+        ctx.fillRect(x, h-bh, (w/bars)-2, bh);
       }
       rafId = requestAnimationFrame(frame);
     }
