@@ -212,7 +212,8 @@
   .rank.top1{color:#ffd700}
   .rank.top2{color:#c0c0c0}
   .rank.top3{color:#cd7f32}
-  .lb-name{display:flex;align-items:center;gap:10px}
+  .lb-name{display:flex;align-items:center;gap:10px;min-width:0}
+  .lb-name-info{min-width:0}
   .lb-score{font-family:var(--mono);color:var(--text);font-weight:700}
   .lb-stars{display:flex;gap:2px}
   .lb-stars .icon{width:15px;height:15px}
@@ -281,6 +282,8 @@
     .lb-stars .icon{width:12px;height:12px}
     th .lb-th-text{display:none}
     th{display:table-cell;text-align:left}
+    .lb-name-info{max-width:120px}
+    .lb-name-line{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
     .lb-col-narrow{display:none}
   }
 </style>
@@ -817,10 +820,10 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
         <td class="rank lb-col-narrow ${rankClass}">${i+1}</td>
         <td>
           <div class="lb-name">
-            <div class="avatar ${row.v.gender==='Ž'?'f':''}" style="width:28px;height:28px;font-size:11px">${initials(row.v.name)}</div>
-            <div>
-              <div style="font-weight:600">${row.v.name} ${row.v.price==='3x'?'<span class="badge price3">3x</span>':''}</div>
-              <div style="font-size:11px;color:var(--text-dim)">${row.v.tag}</div>
+            <div class="avatar ${row.v.gender==='Ž'?'f':''}" style="width:28px;height:28px;font-size:11px;flex:none">${initials(row.v.name)}</div>
+            <div class="lb-name-info">
+              <div class="lb-name-line" style="font-weight:600">${row.v.name} ${row.v.price==='3x'?'<span class="badge price3">3x</span>':''}</div>
+              <div class="lb-name-line" style="font-size:11px;color:var(--text-dim)">${row.v.tag}</div>
             </div>
           </div>
         </td>
