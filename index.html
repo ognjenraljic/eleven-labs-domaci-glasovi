@@ -540,42 +540,68 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
   }
 
   // ---------- audio + waveform ----------
-  // #player je JEDINI element koji stvarno pušta zvuk - nikad ne dira Web Audio API,
-  // pušta kroz potpuno normalan <audio> default izlaz, garantovano pouzdano.
-  // #playerViz je drugi, nečujan audio element (muted, nikad povezan na destination)
-  // koji svira isti fajl paralelno SAMO da nahrani analyser za pravu audio-reaktivnu
-  // animaciju - čak i ako ovaj dio potpuno pukne, zvuk iz #player ostaje netaknut.
+  // #player je JEDINI element koji pusta zvuk - obican <audio>, garantovano pouzdano.
+  // Waveform NIJE live Web Audio analiza (MediaElementAudioSourceNode na cross-origin
+  // Blob audiju se pokazao nepouzdan - povremeno vraca nulte podatke bez ikakvog
+  // upozorenja, provjereno da CORS headeri stoje ispravno na svakoj ruti pa je uzrok
+  // browser-specifican kvirk van naseg dosega). Umjesto toga: fajl se unaprijed
+  // preuzme i dekodira preko decodeAudioData u niz stvarnih amplituda (jednom po
+  // klipu, keširano), pa se tokom sviranja crta prozor tog PRAVOG talasa koji klizi
+  // u sinhronizaciji sa audioEl.currentTime - stvarna audio-reaktivna animacija,
+  // bez oslanjanja na live analyser koji zna da puca.
   const audioEl = document.getElementById('player');
-  const vizEl = document.getElementById('playerViz');
-  vizEl.muted = true;
-  audioEl.crossOrigin = 'anonymous';
-  vizEl.crossOrigin = 'anonymous';
   let rafId = null;
-  let audioCtx = null, analyser = null, freqData = null, vizReady = false;
+  const WAVE_BUCKETS = 200;
+  const waveformCache = new Map(); // url -> Promise<Float32Array|null>
+  let decodeCtx = null;
+  let currentWaveform = null;
+  let waveformToken = 0;
 
-  function ensureViz(){
-    if(vizReady || audioCtx) return;
-    try{
-      audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-      analyser = audioCtx.createAnalyser();
-      analyser.fftSize = 128;
-      freqData = new Uint8Array(analyser.frequencyBinCount);
-      const src = audioCtx.createMediaElementSource(vizEl);
-      src.connect(analyser);
-      // namjerno NEMA analyser.connect(audioCtx.destination) - vizEl nikad ne smije biti čujan
-      vizReady = true;
-    }catch(e){
-      console.warn('Waveform vizualizacija nedostupna, koristi se fallback animacija', e);
-      audioCtx = null; analyser = null;
+  function getDecodeCtx(){
+    if(!decodeCtx){
+      try{ decodeCtx = new (window.AudioContext||window.webkitAudioContext)(); }
+      catch(e){ decodeCtx = null; }
     }
+    return decodeCtx;
+  }
+
+  function getWaveform(url){
+    if(waveformCache.has(url)) return waveformCache.get(url);
+    const p = (async()=>{
+      const ctx = getDecodeCtx();
+      if(!ctx) return null;
+      const res = await fetch(url);
+      const buf = await res.arrayBuffer();
+      const audioBuf = await ctx.decodeAudioData(buf);
+      const data = audioBuf.getChannelData(0);
+      const bucketSize = Math.max(1, Math.ceil(data.length / WAVE_BUCKETS));
+      const peaks = new Float32Array(WAVE_BUCKETS);
+      for(let i=0;i<WAVE_BUCKETS;i++){
+        let max = 0;
+        const start = i*bucketSize, end = Math.min(data.length, start+bucketSize);
+        for(let j=start;j<end;j++){ const v = Math.abs(data[j]); if(v>max) max=v; }
+        peaks[i] = max;
+      }
+      let peakMax = 0;
+      for(let i=0;i<peaks.length;i++){ if(peaks[i]>peakMax) peakMax=peaks[i]; }
+      if(peakMax > 0){ for(let i=0;i<peaks.length;i++){ peaks[i] = peaks[i]/peakMax; } }
+      return peaks;
+    })().catch(e=>{
+      console.warn('Waveform dekodiranje nije uspjelo, koristi se fallback animacija', e);
+      return null;
+    });
+    waveformCache.set(url, p);
+    return p;
   }
 
   function loadClip(autoPlay){
     const path = clipPath(state.model, state.voiceId, state.cat, state.ver);
     const url = encodePath(path);
     audioEl.src = url;
-    vizEl.src = url;
     updateTimeLabel();
+    currentWaveform = null;
+    const myToken = ++waveformToken;
+    getWaveform(url).then(w=>{ if(myToken === waveformToken) currentWaveform = w; });
     if(autoPlay){ audioEl.play().catch(()=>{}); }
   }
   function loadAndMaybePlay(){
@@ -591,18 +617,11 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
   audioEl.addEventListener('play', ()=>{
     const btn = document.getElementById('playBtn');
     if(btn) btn.innerHTML = ICONS.pause;
-    ensureViz();
-    if(vizReady){
-      if(audioCtx.state==='suspended') audioCtx.resume().catch(()=>{});
-      try{ vizEl.currentTime = audioEl.currentTime; }catch(e){}
-      vizEl.play().catch(()=>{});
-    }
     drawWave();
   });
   audioEl.addEventListener('pause', ()=>{
     const btn = document.getElementById('playBtn');
     if(btn) btn.innerHTML = ICONS.play;
-    if(vizReady) vizEl.pause();
     if(rafId) cancelAnimationFrame(rafId);
     drawIdle();
   });
@@ -657,22 +676,19 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       if(audioEl.paused){ return; }
       ctx.clearRect(0,0,w,h);
       const bars = 40;
-      // Web Audio analyser na cross-origin (Blob) audio elementu ponekad vraca
-      // nulte podatke bez ikakvog upozorenja (browser-specificna nepouzdanost,
-      // ne CORS/server problem - headeri su provjereni ispravni na svakoj ruti).
-      // Ako je pravi signal nula, ne prikazuj ravnu liniju - koristi animiranu
-      // fallback verziju umjesto nje, tako da vizuelizacija uvijek "zivi".
-      let realData = null;
-      if(vizReady && analyser){
-        analyser.getByteFrequencyData(freqData);
-        const sum = freqData.reduce((a,b)=>a+b,0);
-        if(sum > 0) realData = freqData;
-      }
-      const step = realData ? Math.floor(realData.length/bars) : 1;
+      // Klizi kroz stvarno dekodovane amplitude tog klipa (vidi getWaveform), centrirano
+      // na trenutnu poziciju sviranja - pravi audio-reaktivni prikaz, ne live analyser.
+      const dur = audioEl.duration || 0;
+      const progress = dur > 0 ? Math.min(1, audioEl.currentTime/dur) : 0;
       for(let i=0;i<bars;i++){
-        const v = realData
-          ? realData[i*step]/255
-          : (Math.sin(Date.now()/120 + i)+1)/2 * 0.7 + 0.1;
+        let v;
+        if(currentWaveform && currentWaveform.length){
+          const center = progress * currentWaveform.length;
+          const idx = Math.min(currentWaveform.length-1, Math.max(0, Math.round(center - bars/2 + i)));
+          v = currentWaveform[idx];
+        } else {
+          v = (Math.sin(Date.now()/120 + i)+1)/2 * 0.7 + 0.1;
+        }
         const bh = Math.max(3, v*h);
         const x = i*(w/bars);
         const grad = ctx.createLinearGradient(0,h-bh,0,h);
