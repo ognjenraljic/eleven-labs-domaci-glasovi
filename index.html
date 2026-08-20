@@ -575,16 +575,25 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       const audioBuf = await ctx.decodeAudioData(buf);
       const data = audioBuf.getChannelData(0);
       const bucketSize = Math.max(1, Math.ceil(data.length / WAVE_BUCKETS));
+      // RMS (prosjecna energija) po bucketu, ne apsolutni pik - jedan glasan
+      // trenutak (npr. plozivni suglasnik) inace zgnjeci vizuelni prikaz
+      // ostatka govora u skoro-tisinu.
+      const rms = new Float32Array(WAVE_BUCKETS);
+      for(let i=0;i<WAVE_BUCKETS;i++){
+        let sumSq = 0;
+        const start = i*bucketSize, end = Math.min(data.length, start+bucketSize);
+        for(let j=start;j<end;j++){ const v = data[j]; sumSq += v*v; }
+        rms[i] = Math.sqrt(sumSq / Math.max(1, end-start));
+      }
+      // Normalizuj po 90. percentilu umjesto apsolutnom maksimumu - isti razlog,
+      // plus blagi boost (^0.6) tisih dijelova da prikaz izgleda zivlje.
+      const sorted = Array.from(rms).sort((a,b)=>a-b);
+      const ref = sorted[Math.floor(sorted.length*0.9)] || sorted[sorted.length-1] || 1;
       const peaks = new Float32Array(WAVE_BUCKETS);
       for(let i=0;i<WAVE_BUCKETS;i++){
-        let max = 0;
-        const start = i*bucketSize, end = Math.min(data.length, start+bucketSize);
-        for(let j=start;j<end;j++){ const v = Math.abs(data[j]); if(v>max) max=v; }
-        peaks[i] = max;
+        const norm = ref > 0 ? Math.min(1, rms[i]/ref) : 0;
+        peaks[i] = Math.pow(norm, 0.6);
       }
-      let peakMax = 0;
-      for(let i=0;i<peaks.length;i++){ if(peaks[i]>peakMax) peakMax=peaks[i]; }
-      if(peakMax > 0){ for(let i=0;i<peaks.length;i++){ peaks[i] = peaks[i]/peakMax; } }
       return peaks;
     })().catch(e=>{
       console.warn('Waveform dekodiranje nije uspjelo, koristi se fallback animacija', e);
