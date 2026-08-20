@@ -502,12 +502,14 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
   // ---------- scoring ----------
   function voiceStats(voice){
     const s = serverStats[voice.id];
-    if(!s) return { avg: null, count: 0, avgMulti: null, avgFlash: null };
+    if(!s) return { avg: null, count: 0, avgMulti: null, avgFlash: null, countMulti: 0, countFlash: 0 };
     return {
       avg: s.avg,
       count: s.count,
       avgMulti: s.avgMulti,
       avgFlash: s.avgFlash,
+      countMulti: s.countMulti,
+      countFlash: s.countFlash,
     };
   }
 
@@ -574,6 +576,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
     const genderClass = v.gender==='Ž' ? 'f' : '';
     const cat = CATS.find(c=>c.key===state.cat);
     const nameParts = splitVoiceName(v.name);
+    const modelCount = state.model==='multi' ? stats.countMulti : stats.countFlash;
 
     const catTabs = CATS.map(c=>`
       <button class="cat-tab ${c.key===state.cat?'active':''}" data-cat="${c.key}">
@@ -611,7 +614,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
         </div>
         <div style="text-align:right">
           <div class="score-pill score-box" style="font-size:15px">${stats.avg!==null? ICONS.starSmall+' '+stats.avg.toFixed(2) : 'Bez ocjene'}</div>
-          <div class="rating-label rating-count-desktop">${stats.count} ocjena ukupno</div>
+          <div class="rating-label rating-count-desktop">${modelCount} ocjena ukupno</div>
         </div>
       </div>
       <div class="usage-row usage-row-mobile">
@@ -638,7 +641,7 @@ const DATA = {"categories": [{"key": "01-uzvik", "label": "Uzvik", "sub": "Uzvik
       <div class="rating-row">
         <span class="rating-label">Kako ti se čini ovaj glas na modelu ${state.model==='multi'?'Multilingual v2':'Flash v2.5'}?</span>
         ${starsHTML(state.model, true)}
-        <div class="rating-label rating-count-mobile">Broj ocjena: ${stats.count}</div>
+        <div class="rating-label rating-count-mobile">Broj ocjena: ${modelCount}</div>
       </div>
     `;
 
